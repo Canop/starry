@@ -35,7 +35,38 @@ pub struct DatedObs {
     pub stars: usize,
 }
 
+fn dist(a: usize, b: usize) -> usize {
+    if a < b { b - a } else { a - b }
+}
+
 impl UserObs {
+    pub fn repo_count(&self, repo_name: &str) -> Option<usize> {
+        for repo_obs in &self.counts {
+            if repo_obs.repo_name == repo_name {
+                return Some(repo_obs.stars);
+            }
+        }
+        None
+    }
+    pub fn diff_from(&self, old_uo: &Self) -> Vec<RepoChange> {
+        let mut changes = Vec::new();
+        for repo_obs in &self.counts {
+            let old_stars = old_uo.repo_count(&repo_obs.repo_name);
+            if let Some(old_stars) = old_stars {
+                if dist(old_stars, repo_obs.stars) < 2 {
+                    // we might look for a better variation detector,
+                    // maybe normalize using the max and the duration
+                    continue;
+                }
+            }
+            changes.push(RepoChange {
+                repo_id: RepoId::new(self.user_id.clone(), &repo_obs.repo_name),
+                old_stars,
+                new_stars: repo_obs.stars,
+            });
+        }
+        changes
+    }
     pub fn write_in_dir(&self, user_dir: &Path) -> Result<()> {
         fs::create_dir_all(user_dir)?;
         // the chosen format, precise to the seconds only, avoids having

@@ -19,6 +19,24 @@ impl Db {
     pub fn user_stars_dir(&self, user_id: &UserId) -> PathBuf {
         self.dir.join("stars").join(user_id.to_string())
     }
+    pub fn last_user_obs(&self, user_id: &UserId) -> Result<Option<UserObs>> {
+        let user_dir = self.user_stars_dir(user_id);
+        if !user_dir.exists() {
+            return Ok(None);
+        }
+        fs::read_dir(user_dir)?
+            .filter_map(|e| e.ok())
+            .map(|e| e.path())
+            .filter_map(|path| {
+                UserObs::filename_date(&path)
+                    .map(|date| (path, date))
+            })
+            .max_by_key(|t| t.1)
+            .map(|(path, date)| {
+                UserObs::read_file(&path, user_id.clone(), date)
+            })
+            .transpose()
+    }
     /// read in database the time serie made of
     /// the total numbers of stars of a user per date.
     /// Records are not sorted by date.

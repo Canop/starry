@@ -40,6 +40,8 @@ Fetching the stars is done with
 
 	starry
 
+Starry will tell you about new repositories and rising or dropping stars.
+
 If you want regular data, you should probably add a cron rule.
 
 Data are stored in clear in CSV files (if you're on linux, they're in `~/.local/share/starry/stars`.

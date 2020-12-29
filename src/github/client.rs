@@ -39,7 +39,7 @@ impl GithubClient {
         // we'll do several requests if needed, using graphql pagination,
         // as the number of repositories of a user may exceed the tiny
         // capacity of a github graphql response
-        let page_size = 10; // github supports 100 but I want to demonstrate pages
+        let page_size = 100;
         let mut cursor: Option<String> = None;
         loop {
             let query = format!(

@@ -47,11 +47,18 @@ pub fn run() -> Result<()> {
             let github_client = GithubClient::new(&conf)?;
             // we use the same date, so that it will look better in extracts
             let now = Utc::now();
+            let mut changes = Vec::new();
             for user in &conf.watched_users {
                 let user_id = UserId::new(user);
                 let user_dir = db.user_stars_dir(&user_id);
-                let user_obs = github_client.get_user_star_counts(user_id, now)?;
+                let user_obs = github_client.get_user_star_counts(user_id.clone(), now)?;
+                if let Some(old_user_obs) = db.last_user_obs(&user_id)? {
+                    changes.append(& mut user_obs.diff_from(&old_user_obs));
+                }
                 user_obs.write_in_dir(&user_dir)?;
+            }
+            for change in changes {
+                println!("{}", change);
             }
         }
     }
