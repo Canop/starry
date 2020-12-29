@@ -1,3 +1,9 @@
+[s1]: https://img.shields.io/crates/v/starry.svg
+[l1]: https://crates.io/crates/starry
+
+[s2]: https://miaou.dystroy.org/static/shields/room.svg
+[l2]: https://miaou.dystroy.org/3768?rust
+
 # starry
 
 A tool to store the counts of GitHub stars.
