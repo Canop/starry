@@ -1,7 +1,8 @@
 use {
     crate::*,
     anyhow::*,
-    chrono::Utc,
+    chrono::{DateTime, Utc},
+    rayon::prelude::*,
     std::{fs, path::PathBuf},
 };
 
@@ -82,6 +83,23 @@ impl Db {
         }
         Ok(lines)
     }
+    fn update_user(
+        &self,
+        user_id: &UserId,
+        github_client: &GithubClient,
+        now: DateTime<Utc>,
+    ) -> Result<Vec<RepoChange>> {
+        let user_dir = self.user_stars_dir(&user_id);
+        let user_obs = github_client.get_user_star_counts(user_id.clone(), now)?;
+        let mut changes = Vec::new();
+        if let Some(old_user_obs) = self.last_user_obs(&user_id)? {
+            changes.append(& mut user_obs.diff_from(&old_user_obs));
+        }
+        if !changes.is_empty() {
+            user_obs.write_in_dir(&user_dir)?;
+        }
+        Ok(changes)
+    }
     pub fn update(&mut self, conf: &Conf) -> Result<Vec<RepoChange>> {
         if conf.watched_users.is_empty() {
             eprintln!("No user followed. Use `starry follow some_name` to add one.");
@@ -91,18 +109,24 @@ impl Db {
         let github_client = GithubClient::new(&conf)?;
         // we use the same date, so that it will look better in extracts
         let now = Utc::now();
-        let mut changes = Vec::new();
-        for user in &conf.watched_users {
-            let user_id = UserId::new(user);
-            let user_dir = self.user_stars_dir(&user_id);
-            let user_obs = github_client.get_user_star_counts(user_id.clone(), now)?;
-            if let Some(old_user_obs) = self.last_user_obs(&user_id)? {
-                changes.append(& mut user_obs.diff_from(&old_user_obs));
-            }
-            if !changes.is_empty() {
-                user_obs.write_in_dir(&user_dir)?;
-            }
-        }
+        let changes = conf.watched_users.iter()
+            .map(UserId::new)
+            .par_bridge()
+            .map(|user_id| self.update_user(&user_id, &github_client, now))
+            .filter_map(|r| match r {
+                Ok(changes) => Some(changes),
+                Err(e) => {
+                    eprintln!("error while updating user: {:?}", e);
+                    None
+                }
+            })
+            .reduce(
+                Vec::new,
+                |mut a, mut b| {
+                    a.append(&mut b);
+                    a
+                }
+            );
         Ok(changes)
     }
 }
