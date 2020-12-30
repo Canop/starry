@@ -58,3 +58,14 @@ In this query we want to get the time series of 4 users (meaning their total num
 Here's an example of result:
 
 ![csv](doc/csv.png)
+
+## What's next
+
+After I've accumulated more data, I might add a few features (you may ask for them if you want), like
+
+* proper trending analysis
+* a svg graph generator
+* a miaou plugin
+* a web page for people to register their name and start gather history too
+* an alert when I'm in a boring meeting detector that dtolnay made a new thing
+* etc.
