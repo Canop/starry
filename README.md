@@ -12,7 +12,7 @@ A tool to store the counts of GitHub stars.
 
 Did you notice all those tools pretending to graph the numbers of stars on repositories are always only rising ?
 
-That's because you've been lying to: those tools only shows the current stars, with their age. Because that's the only information you can get with the GitHub API.
+That's because you've been lied to: those tools only shows the current stars, with their age. Because that's the only information you can get with the GitHub API.
 
 If you want to see the real stars graph there's no other solution than to regularly query and store the numbers. That's what this tool does.
 
@@ -40,7 +40,9 @@ Fetching the stars is done with
 
 	starry
 
-Starry will tell you about new repositories and rising or dropping stars.
+Starry will tell you about new repositories and rising or dropping stars:
+
+![changes](doc/changes.png)
 
 If you want regular data, you should probably add a cron rule.
 

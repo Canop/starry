@@ -2,7 +2,12 @@ mod args;
 
 pub use args::*;
 
-use {crate::*, anyhow::*, argh, chrono::Utc, std::io};
+use {
+    crate::*,
+    anyhow::*,
+    argh,
+    std::io,
+};
 
 pub fn run() -> Result<()> {
     let args: Args = argh::from_env();
@@ -36,29 +41,19 @@ pub fn run() -> Result<()> {
         Some(ArgsCommand::Extract(ExtractCommand { names })) => {
             let db = Db::new()?;
             let extract = Extract::read(&db, names)?;
-            extract.write_csv(io::stdout())?;
+            extract.write_csv(&mut io::stdout())?;
         }
         Some(ArgsCommand::Gaze { .. }) | None => {
-            if conf.watched_users.is_empty() {
-                eprintln!("No user followed. Use `starry follow some_name` to add one.");
-                return Ok(());
-            }
-            let db = Db::new()?;
-            let github_client = GithubClient::new(&conf)?;
-            // we use the same date, so that it will look better in extracts
-            let now = Utc::now();
-            let mut changes = Vec::new();
-            for user in &conf.watched_users {
-                let user_id = UserId::new(user);
-                let user_dir = db.user_stars_dir(&user_id);
-                let user_obs = github_client.get_user_star_counts(user_id.clone(), now)?;
-                if let Some(old_user_obs) = db.last_user_obs(&user_id)? {
-                    changes.append(& mut user_obs.diff_from(&old_user_obs));
+            let mut db = Db::new()?;
+            let mut changes = db.update(&conf)?;
+            if changes.is_empty() {
+                println!("no change");
+            } else {
+                println!("{} changes", changes.len());
+                changes.sort_by(|a, b| b.value().partial_cmp(&a.value()).unwrap());
+                for change in changes.iter().take(5) {
+                    println!("{}", change);
                 }
-                user_obs.write_in_dir(&user_dir)?;
-            }
-            for change in changes {
-                println!("{}", change);
             }
         }
     }

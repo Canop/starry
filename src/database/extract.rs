@@ -2,7 +2,6 @@ use {
     crate::*,
     anyhow::*,
     chrono::{DateTime, SecondsFormat, Utc},
-    csv,
     std::{collections::HashMap, io::Write},
 };
 
@@ -26,31 +25,26 @@ pub(crate) struct Col {
 }
 
 impl Extract {
-    pub fn write_csv<W: Write>(&self, w: W) -> Result<()> {
-        // there's probably a simpler and more efficient way to
-        // write this as csv but I don't know the crate well enough
-        let mut csv_writer = csv::Writer::from_writer(w);
-        let mut titles = vec!["time"];
+    pub fn write_csv<W: Write>(&self, w: &mut W) -> Result<()> {
+        write!(w, "time")?;
         for name in &self.names {
-            titles.push(name);
+            write!(w, ",{}", name)?;
         }
-        csv_writer.write_record(&titles)?;
+        writeln!(w)?;
         for line in &self.lines {
-            let mut record = Vec::new();
-            record.push(line.time.to_rfc3339_opts(SecondsFormat::Secs, true));
+            write!(w, "{}", line.time.to_rfc3339_opts(SecondsFormat::Secs, true))?;
             for count in &line.counts {
-                record.push(if let Some(count) = count {
-                    count.to_string()
+                if let Some(count) = count {
+                    write!(w, ",{}", count)?;
                 } else {
-                    "".to_owned()
-                });
+                    write!(w, ",")?;
+                }
             }
-            csv_writer.write_record(&record)?;
+            writeln!(w)?;
         }
-        csv_writer.flush()?;
+        w.flush()?;
         Ok(())
     }
-
     pub fn read(db: &Db, names: Vec<String>) -> Result<Self> {
         // we first compile the user request in several queries (one per user)
         let mut queries: Vec<UserQuery> = Vec::new();

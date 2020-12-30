@@ -1,6 +1,7 @@
 use {
     crate::*,
     anyhow::*,
+    chrono::Utc,
     std::{fs, path::PathBuf},
 };
 
@@ -80,5 +81,28 @@ impl Db {
             }
         }
         Ok(lines)
+    }
+    pub fn update(&mut self, conf: &Conf) -> Result<Vec<RepoChange>> {
+        if conf.watched_users.is_empty() {
+            eprintln!("No user followed. Use `starry follow some_name` to add one.");
+            return Ok(vec![]);
+        }
+        println!("checking {} users...", conf.watched_users.len());
+        let github_client = GithubClient::new(&conf)?;
+        // we use the same date, so that it will look better in extracts
+        let now = Utc::now();
+        let mut changes = Vec::new();
+        for user in &conf.watched_users {
+            let user_id = UserId::new(user);
+            let user_dir = self.user_stars_dir(&user_id);
+            let user_obs = github_client.get_user_star_counts(user_id.clone(), now)?;
+            if let Some(old_user_obs) = self.last_user_obs(&user_id)? {
+                changes.append(& mut user_obs.diff_from(&old_user_obs));
+            }
+            if !changes.is_empty() {
+                user_obs.write_in_dir(&user_dir)?;
+            }
+        }
+        Ok(changes)
     }
 }
