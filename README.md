@@ -67,5 +67,5 @@ After I've accumulated more data, I might add a few features (you may ask for th
 * a svg graph generator
 * a miaou plugin
 * a web page for people to register their name and start gather history too
-* an alert when I'm in a boring meeting detector that dtolnay made a new thing
+* an alert when I'm in a boring meeting that dtolnay made a new thing
 * etc.
