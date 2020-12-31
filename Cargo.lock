@@ -153,6 +153,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "cli-log"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f47673f2992075892b3e983499410c92af91a7d7cee72cf55ec4caea278de6cf"
+dependencies = [
+ "chrono",
+ "log",
+]
+
+[[package]]
 name = "const_fn"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1136,12 +1146,13 @@ dependencies = [
 
 [[package]]
 name = "starry"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "anyhow",
  "argh",
  "byo-graphql",
  "chrono",
+ "cli-log",
  "csv",
  "directories-next",
  "log",
@@ -1149,7 +1160,6 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "simplelog",
 ]
 
 [[package]]

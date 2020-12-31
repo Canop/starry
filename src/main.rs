@@ -19,7 +19,7 @@ use {
 };
 
 fn main() -> Result<()> {
-    configure_log("starry");
+    cli_log::init("starry");
     cli::run()?;
     info!("bye");
     Ok(())

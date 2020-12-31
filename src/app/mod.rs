@@ -1,12 +1,6 @@
-mod log;
-
 use {
     anyhow::*,
     directories_next::ProjectDirs,
-};
-
-pub use {
-    self::log::*,
 };
 
 /// return the instance of ProjectDirs holding the app specific paths
