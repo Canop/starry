@@ -23,6 +23,7 @@ pub enum ArgsCommand {
     Unfollow(UnfollowCommand),
     Gaze(GazeCommand),
     Extract(ExtractCommand),
+    Check(CheckCommand),
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -39,6 +40,14 @@ pub struct SetCommand {
 /// get a property, eg `starry get github-api-token`
 #[argh(subcommand, name = "get")]
 pub struct GetCommand {
+    #[argh(positional)]
+    pub name: String,
+}
+
+#[derive(FromArgs, PartialEq, Debug)]
+/// check the existence of a user
+#[argh(subcommand, name = "check")]
+pub struct CheckCommand {
     #[argh(positional)]
     pub name: String,
 }

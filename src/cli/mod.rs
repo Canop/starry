@@ -30,9 +30,14 @@ pub fn run() -> Result<()> {
                 println!("No value for {:?}", name);
             }
         },
+        Some(ArgsCommand::Check(CheckCommand { name })) => {
+            UserId::new(name).check_on_github(&conf)?;
+        }
         Some(ArgsCommand::Follow(FollowCommand { name })) => {
-            conf.follow(name);
-            conf.save()?;
+            if UserId::new(name.clone()).check_on_github(&conf)? {
+                conf.follow(name);
+                conf.save()?;
+            }
         }
         Some(ArgsCommand::Unfollow(UnfollowCommand { name })) => {
             conf.unfollow(&name);

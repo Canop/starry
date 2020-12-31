@@ -12,7 +12,7 @@ use {
     },
 };
 
-/// a user obs is what's stored as a file in database.
+/// a user observation is what's stored as a file in database.
 /// There's one per (user, time) and it contains the
 /// counts of stars of all repos of that user on that time.
 #[derive(Debug)]

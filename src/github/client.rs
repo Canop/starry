@@ -24,8 +24,30 @@ impl GithubClient {
         gql_client.set_bearer_auth(github_api_token);
         Ok(Self { gql_client })
     }
+    /// get a GitHub user's information by its login
+    pub fn get_user(&self, user_id: UserId) -> Result<User> {
+        // we extract into a dedicated structure matching the graphql response
+        #[derive(Deserialize)]
+        pub struct GQUser {
+            pub name: String,
+            pub repositories: Count,
+        }
+        let query = format!(
+            "{{ {} {{ name {}  }} }}",
+            user_id.graphql_selector(),
+            Count::query("repositories", "isFork: false"),
+        );
+        let gquser: GQUser = self.gql_client.get_first_item(&query)?;
+        Ok(User {
+            user_id,
+            name: gquser.name,
+            non_fork_repositories_count: gquser.repositories.into(),
+        })
+    }
+    /// query the GitHub API to get a UserObs which has the number of stars
+    /// of all this user's repositories
     pub fn get_user_star_counts(&self, user_id: UserId, now: DateTime<Utc>) -> Result<UserObs> {
-        #[derive(Debug, Deserialize)]
+        #[derive(Deserialize)]
         pub struct User {
             pub repositories: Repositories,
         }
@@ -43,7 +65,7 @@ impl GithubClient {
         let mut cursor: Option<String> = None;
         loop {
             let query = format!(
-                r#"{{ {} {{ repositories{}{} }} }}"#,
+                "{{ {} {{ repositories{}{} }} }}",
                 user_id.graphql_selector(),
                 Repositories::query_page_selector(&cursor, page_size, "isFork: false"),
                 Repositories::query_page_body("{ name, stargazers { totalCount } }"),
