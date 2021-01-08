@@ -89,6 +89,7 @@ impl Db {
         github_client: &GithubClient,
         now: DateTime<Utc>,
     ) -> Result<Vec<RepoChange>> {
+        debug!("checking user {}", user_id);
         let user_dir = self.user_stars_dir(&user_id);
         let user_obs = github_client.get_user_star_counts(user_id.clone(), now)?;
         let mut changes = Vec::new();
@@ -96,6 +97,7 @@ impl Db {
             changes.append(& mut user_obs.diff_from(&old_user_obs));
         }
         if !changes.is_empty() {
+            debug!("changes: {:#?}", &changes);
             user_obs.write_in_dir(&user_dir)?;
         }
         Ok(changes)

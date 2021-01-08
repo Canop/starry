@@ -10,7 +10,7 @@ A tool to store the counts of GitHub stars.
 
 ## Why
 
-Did you notice all those tools pretending to graph the numbers of stars on repositories are always only rising ?
+Did you notice all those tools pretending to graph the numbers of stars on repositories never show anything going down ?
 
 That's because you've been lied to: those tools only show the current stars, with their age. Because that's the only information you can get with the GitHub API.
 
@@ -19,6 +19,8 @@ If you want to see the real stars graph there's no other solution than to regula
 Because the history of current stars tells only half the starry.
 
 ## Installation
+
+You must have [Rust installed](https://rustup.rs). Do
 
 	cargo install starry
 
@@ -58,6 +60,18 @@ In this query we want to get the time series of 4 users (meaning their total num
 Here's an example of result:
 
 ![csv](doc/csv.png)
+
+You may graph the data with [csv2svg](https://github.com/Canop/csv2svg):
+
+If you run
+
+	starry extract dtolnay/thiserror | csv2svg
+
+then your browser displays a graph like this:
+
+![svg_dtolnay_thiserror](doc/svg_dtolnay_thiserror.png)
+
+(you may display several entries, like `starry extract dtolnay/thiserror dtolnay/anyhow | csv2svg`)
 
 ## What's next
 

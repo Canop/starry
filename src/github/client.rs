@@ -67,7 +67,11 @@ impl GithubClient {
             let query = format!(
                 "{{ {} {{ repositories{}{} }} }}",
                 user_id.graphql_selector(),
-                Repositories::query_page_selector(&cursor, page_size, "isFork: false"),
+                Repositories::query_page_selector(
+                    &cursor,
+                    page_size,
+                    "isFork: false, ownerAffiliations: OWNER",
+                ),
                 Repositories::query_page_body("{ name, stargazers { totalCount } }"),
             );
             // println!("query: {}", &query);
