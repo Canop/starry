@@ -1,26 +1,8 @@
-#[macro_use]
-extern crate log;
+#[macro_use] extern crate log;
 
-mod app;
-mod cli;
-mod conf;
-mod database;
-mod github;
-
-pub use {
-    app::*,
-    conf::*,
-    database::*,
-    github::*,
-};
-
-use {
-    anyhow::*,
-};
-
-fn main() -> Result<()> {
+fn main() -> anyhow::Result<()> {
     cli_log::init("starry");
-    cli::run()?;
+    starry::run()?;
     info!("bye");
     Ok(())
 }

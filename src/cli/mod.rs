@@ -48,6 +48,20 @@ pub fn run() -> Result<()> {
             let extract = Extract::read(&db, names)?;
             extract.write_csv(&mut io::stdout())?;
         }
+        Some(ArgsCommand::List(ListCommand { login })) => {
+            let db = Db::new()?;
+            let list = match login {
+                Some(login) => {
+                    let uo = db.last_user_obs(&UserId::new(&login))?;
+                    match uo {
+                        Some(uo) => uo.into(),
+                        None => bail!("no data for {:?}", login),
+                    }
+                }
+                None => List::users(&db, &conf, false)?,
+            };
+            list.write_csv(&mut io::stdout())?;
+        }
         Some(ArgsCommand::Gaze { .. }) | None => {
             let mut db = Db::new()?;
             let mut changes = db.update(&conf)?;

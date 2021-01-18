@@ -8,12 +8,13 @@ use {
 #[derive(Debug)]
 pub struct ExtractLine {
     pub time: DateTime<Utc>,
+    // this vec is the same len than the extract's names
     pub counts: Vec<Option<usize>>,
 }
 
 #[derive(Debug)]
 pub struct Extract {
-    /// names of either users or repos (with a /)
+    // names of either users or repos (with a /)
     pub names: Vec<String>,
     pub lines: Vec<ExtractLine>,
 }

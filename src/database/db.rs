@@ -26,6 +26,10 @@ impl Db {
         if !user_dir.exists() {
             return Ok(None);
         }
+        // TODO: parsing all filenames as dates serves both as filter and
+        // to get the most recent one, but it should be more efficient
+        // to just look in order at the most recent one as given by
+        // the metadata until one is valid
         fs::read_dir(user_dir)?
             .filter_map(|e| e.ok())
             .map(|e| e.path())
@@ -38,6 +42,14 @@ impl Db {
                 UserObs::read_file(&path, user_id.clone(), date)
             })
             .transpose()
+    }
+    pub fn count_user_obs(&self, user_id: &UserId) -> Result<usize> {
+        let user_dir = self.user_stars_dir(user_id);
+        if !user_dir.exists() {
+            return Ok(0);
+        }
+        // we currently don't check there's no extraneous file in the directory
+        Ok(fs::read_dir(user_dir)?.count())
     }
     /// read in database the time serie made of
     /// the total numbers of stars of a user per date.
@@ -95,9 +107,12 @@ impl Db {
         let mut changes = Vec::new();
         if let Some(old_user_obs) = self.last_user_obs(&user_id)? {
             changes.append(& mut user_obs.diff_from(&old_user_obs));
-        }
-        if !changes.is_empty() {
-            debug!("changes: {:#?}", &changes);
+            if !changes.is_empty() {
+                debug!("changes: {:#?}", &changes);
+                user_obs.write_in_dir(&user_dir)?;
+            }
+        } else {
+            debug!("{} enters the db", &user_id);
             user_obs.write_in_dir(&user_dir)?;
         }
         Ok(changes)

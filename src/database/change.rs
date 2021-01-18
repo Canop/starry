@@ -35,7 +35,7 @@ impl RepoChange {
         if let Some(old_stars) = self.old_stars {
             let o = old_stars as f64;
             let n = self.new_stars as f64;
-            100f64 * (o - n).abs() / (50f64 + o + n)
+            100f64 * (o - n).abs() / (100f64 + o + n)
         } else {
             0.2f64 + (self.new_stars as f64) / 20f64
         }

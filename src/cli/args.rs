@@ -24,6 +24,7 @@ pub enum ArgsCommand {
     Gaze(GazeCommand),
     Extract(ExtractCommand),
     Check(CheckCommand),
+    List(ListCommand),
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -79,4 +80,12 @@ pub struct GazeCommand {}
 pub struct ExtractCommand {
     #[argh(positional)]
     pub names: Vec<String>,
+}
+
+#[derive(FromArgs, PartialEq, Debug)]
+/// list either all users, or all repos of a user
+#[argh(subcommand, name = "list")]
+pub struct ListCommand {
+    #[argh(positional)]
+    pub login: Option<String>,
 }
