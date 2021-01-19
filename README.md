@@ -79,15 +79,8 @@ then your browser displays a graph like this:
 
 ![svg_dtolnay_thiserror](doc/svg_dtolnay_thiserror.png)
 
-(you may display several entries, like `starry extract dtolnay/thiserror dtolnay/anyhow | csv2svg`)
+You may display several entries, like `starry extract dtolnay/thiserror dtolnay/anyhow | csv2svg`
 
-## What's next
+## Starry Online
 
-After I've accumulated more data, I might add a few features (you may ask for them if you want), like
-
-* proper trending analysis
-* a svg graph generator
-* a miaou plugin
-* a web page for people to register their name and start gather history too
-* an alert when I'm in a boring meeting that dtolnay made a new thing
-* etc.
+A limited version of Starry can be seen at [https://dystroy.org/starnet/](https://dystroy.org/starnet/).
