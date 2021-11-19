@@ -64,13 +64,14 @@ pub fn run() -> Result<()> {
         }
         Some(ArgsCommand::Gaze { .. }) | None => {
             let mut db = Db::new()?;
+            db.verbose = args.verbose;
             let mut changes = db.update(&conf)?;
             if changes.is_empty() {
                 println!("no change");
             } else {
                 println!("{} changes", changes.len());
                 changes.sort_by(|a, b| b.value().partial_cmp(&a.value()).unwrap());
-                for change in changes.iter().take(5) {
+                for change in changes.iter().take(20) {
                     println!("{}", change);
                 }
             }

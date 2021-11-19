@@ -12,6 +12,10 @@ pub struct Args {
 
     #[argh(subcommand)]
     pub command: Option<ArgsCommand>,
+
+    /// tell what files are modified
+    #[argh(switch)]
+    pub verbose: bool,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]

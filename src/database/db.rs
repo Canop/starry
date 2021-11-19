@@ -11,12 +11,15 @@ use {
 pub struct Db {
     /// where the DB is on disk
     pub dir: PathBuf,
+    /// whether to tell everything when we work
+    pub verbose: bool,
 }
 
 impl Db {
     pub fn new() -> Result<Self> {
         let dir = app_dirs()?.data_dir().to_path_buf();
-        Ok(Self { dir })
+        let verbose = false;
+        Ok(Self { dir, verbose })
     }
     pub fn user_stars_dir(&self, user_id: &UserId) -> PathBuf {
         self.dir.join("stars").join(user_id.to_string())
@@ -109,11 +112,11 @@ impl Db {
             changes.append(& mut user_obs.diff_from(&old_user_obs));
             if !changes.is_empty() {
                 debug!("changes: {:#?}", &changes);
-                user_obs.write_in_dir(&user_dir)?;
+                user_obs.write_in_dir(&user_dir, self.verbose)?;
             }
         } else {
             debug!("{} enters the db", &user_id);
-            user_obs.write_in_dir(&user_dir)?;
+            user_obs.write_in_dir(&user_dir, self.verbose)?;
         }
         Ok(changes)
     }

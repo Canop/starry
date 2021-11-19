@@ -14,7 +14,7 @@
 
 # starry
 
-A tool to store the counts of GitHub stars.
+A tool to store the counts of GitHub stars, and also be notified about what's new and rising
 
 ## Why
 

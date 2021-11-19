@@ -36,7 +36,7 @@ pub struct DatedObs {
 }
 
 impl UserObs {
-    pub fn write_in_dir(&self, user_dir: &Path) -> Result<()> {
+    pub fn write_in_dir(&self, user_dir: &Path, verbose: bool) -> Result<()> {
         fs::create_dir_all(user_dir)?;
         // the chosen format, precise to the seconds only, avoids having
         // a dot in the name (which would break the naming with the ext)
@@ -48,7 +48,9 @@ impl UserObs {
             w.serialize(repo_obs)?;
         }
         w.flush()?;
-        println!("wrote file {:?}", file_path);
+        if verbose {
+            println!("wrote file {:?}", file_path);
+        }
         Ok(())
     }
     /// if the file has a name matching the userobs filename
