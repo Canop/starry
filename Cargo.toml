@@ -1,6 +1,6 @@
 [package]
 name = "starry"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 edition = "2018"
 repository = "https://github.com/Canop/starry"
@@ -10,7 +10,7 @@ license = "AGPL-3.0"
 readme = "README.md"
 
 [dependencies]
-anyhow = "1.0"
+anyhow = "1.0.49"
 argh = "0.1.3"
 byo-graphql = "0.1.3"
 cli-log = "0.1"
