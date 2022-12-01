@@ -5,7 +5,6 @@ pub use args::*;
 use {
     crate::*,
     anyhow::*,
-    argh,
     std::io,
 };
 
@@ -20,7 +19,9 @@ pub fn run() -> Result<()> {
     match args.command {
         Some(ArgsCommand::Set(SetCommand { name, value })) => {
             conf.set(name, value);
-            conf.save()?;
+            if !args.no_save {
+                conf.save()?;
+            }
         }
         Some(ArgsCommand::Get(GetCommand { name })) => match conf.get(&name) {
             Some(value) => {
@@ -36,12 +37,16 @@ pub fn run() -> Result<()> {
         Some(ArgsCommand::Follow(FollowCommand { name })) => {
             if UserId::new(name.clone()).check_on_github(&conf)? {
                 conf.follow(name);
-                conf.save()?;
+                if !args.no_save {
+                    conf.save()?;
+                }
             }
         }
         Some(ArgsCommand::Unfollow(UnfollowCommand { name })) => {
             conf.unfollow(&name);
-            conf.save()?;
+            if !args.no_save {
+                conf.save()?;
+            }
         }
         Some(ArgsCommand::Extract(ExtractCommand { names })) => {
             let db = Db::new()?;
@@ -65,6 +70,7 @@ pub fn run() -> Result<()> {
         Some(ArgsCommand::Gaze { .. }) | None => {
             let mut db = Db::new()?;
             db.verbose = args.verbose;
+            db.read_only = args.no_save;
             let mut changes = db.update(&conf)?;
             if changes.is_empty() {
                 println!("no change");

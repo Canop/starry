@@ -13,13 +13,16 @@ pub struct Db {
     pub dir: PathBuf,
     /// whether to tell everything when we work
     pub verbose: bool,
+    /// whether to save on disk
+    pub read_only: bool,
 }
 
 impl Db {
     pub fn new() -> Result<Self> {
         let dir = app_dirs()?.data_dir().to_path_buf();
         let verbose = false;
-        Ok(Self { dir, verbose })
+        let read_only = false;
+        Ok(Self { dir, verbose, read_only })
     }
     pub fn user_stars_dir(&self, user_id: &UserId) -> PathBuf {
         self.dir.join("stars").join(user_id.to_string())
@@ -105,18 +108,22 @@ impl Db {
         now: DateTime<Utc>,
     ) -> Result<Vec<RepoChange>> {
         debug!("checking user {}", user_id);
-        let user_dir = self.user_stars_dir(&user_id);
+        let user_dir = self.user_stars_dir(user_id);
         let user_obs = github_client.get_user_star_counts(user_id.clone(), now)?;
         let mut changes = Vec::new();
-        if let Some(old_user_obs) = self.last_user_obs(&user_id)? {
+        if let Some(old_user_obs) = self.last_user_obs(user_id)? {
             changes.append(& mut user_obs.diff_from(&old_user_obs));
             if !changes.is_empty() {
                 debug!("changes: {:#?}", &changes);
-                user_obs.write_in_dir(&user_dir, self.verbose)?;
+                if !self.read_only {
+                    user_obs.write_in_dir(&user_dir, self.verbose)?;
+                }
             }
         } else {
             debug!("{} enters the db", &user_id);
-            user_obs.write_in_dir(&user_dir, self.verbose)?;
+            if !self.read_only {
+                user_obs.write_in_dir(&user_dir, self.verbose)?;
+            }
         }
         Ok(changes)
     }
@@ -126,7 +133,7 @@ impl Db {
             return Ok(vec![]);
         }
         println!("checking {} users...", conf.watched_users.len());
-        let github_client = GithubClient::new(&conf)?;
+        let github_client = GithubClient::new(conf)?;
         // we use the same date, so that it will look better in extracts
         let now = Utc::now();
         let changes = conf.watched_users.iter()

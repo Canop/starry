@@ -16,6 +16,10 @@ pub struct Args {
     /// tell what files are modified
     #[argh(switch)]
     pub verbose: bool,
+
+    /// don't do any modification on disk (for tests or dev)
+    #[argh(switch)]
+    pub no_save: bool,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]

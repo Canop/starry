@@ -22,6 +22,7 @@ command = [
 	"-A", "clippy::match_like_matches_macro",
 	"-A", "clippy::collapsible_if",
 	"-A", "clippy::module_inception",
+	"-A", "clippy::derive_partial_eq_without_eq",
 ]
 need_stdout = false
 
