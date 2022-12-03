@@ -1,7 +1,7 @@
-#[macro_use] extern crate log;
+use cli_log::*;
 
 fn main() -> anyhow::Result<()> {
-    cli_log::init("starry");
+    init_cli_log!();
     starry::run()?;
     info!("bye");
     Ok(())

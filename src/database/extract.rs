@@ -1,6 +1,7 @@
 use {
     crate::*,
     anyhow::*,
+    cli_log::*,
     chrono::{DateTime, SecondsFormat, Utc},
     std::{collections::HashMap, io::Write},
 };

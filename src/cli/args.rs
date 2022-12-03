@@ -22,7 +22,7 @@ pub struct Args {
     pub no_save: bool,
 
     /// number max of rows in a report (default: 20)
-    #[argh(option, default = "20")]
+    #[argh(option, default = "25")]
     pub max_rows: usize,
 
     /// number of threads to use (default 15)

@@ -5,6 +5,7 @@ pub use {
 };
 
 use {
+    cli_log::*,
     crate::*,
     anyhow::*,
     std::io,

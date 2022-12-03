@@ -1,6 +1,7 @@
 use {
     crate::*,
     anyhow::{bail, Result},
+    cli_log::*,
     chrono::{DateTime, Utc},
     crossbeam::{channel, thread},
     std::{
