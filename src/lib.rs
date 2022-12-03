@@ -5,6 +5,7 @@ mod cli;
 mod conf;
 mod database;
 mod github;
+mod md;
 
 pub use {
     app::*,
@@ -12,4 +13,5 @@ pub use {
     conf::*,
     database::*,
     github::*,
+    md::*,
 };

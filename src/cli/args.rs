@@ -20,6 +20,18 @@ pub struct Args {
     /// don't do any modification on disk (for tests or dev)
     #[argh(switch)]
     pub no_save: bool,
+
+    /// number max of rows in a report (default: 20)
+    #[argh(option, default = "20")]
+    pub max_rows: usize,
+
+    /// number of threads to use (default 15)
+    #[argh(option, default = "15")]
+    pub threads: usize,
+
+    #[argh(option, default = "Default::default()")]
+    /// color and style: 'yes', 'no' or 'auto' (auto should be good in most cases)
+    pub color: BoolArg,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -96,4 +108,25 @@ pub struct ExtractCommand {
 pub struct ListCommand {
     #[argh(positional)]
     pub login: Option<String>,
+}
+
+/// An optional boolean for use in Argh
+#[derive(Debug, Clone, Copy, Default)]
+pub struct BoolArg(Option<bool>);
+
+impl BoolArg {
+    pub fn value(self) -> Option<bool> {
+        self.0
+    }
+}
+
+impl argh::FromArgValue for BoolArg {
+    fn from_arg_value(value: &str) -> Result<Self, String> {
+        match value.to_lowercase().as_ref() {
+            "auto" => Ok(BoolArg(None)),
+            "yes" => Ok(BoolArg(Some(true))),
+            "no" => Ok(BoolArg(Some(false))),
+            _ => Err(format!("Illegal value: {:?}", value)),
+        }
+    }
 }

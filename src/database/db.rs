@@ -2,8 +2,21 @@ use {
     crate::*,
     anyhow::{bail, Result},
     chrono::{DateTime, Utc},
-    rayon::prelude::*,
-    std::{fs, path::PathBuf},
+    crossbeam::{channel, thread},
+    std::{
+        fs,
+        io::{self, Write},
+        path::PathBuf,
+    },
+    termimad::{
+        crossterm::{
+            cursor,
+            style::{style, Color, Print, PrintStyledContent, Stylize},
+            terminal::{Clear, ClearType},
+            queue,
+        },
+        ProgressBar,
+    },
 };
 
 /// the database
@@ -127,33 +140,91 @@ impl Db {
         }
         Ok(changes)
     }
-    pub fn update(&mut self, conf: &Conf) -> Result<Vec<RepoChange>> {
-        if conf.watched_users.is_empty() {
+    pub fn update(
+        &self,
+        conf: &Conf,
+        thread_count: usize,
+    ) -> Result<Vec<RepoChange>> {
+        let n = conf.watched_users.len();
+        if n == 0 {
             eprintln!("No user followed. Use `starry follow some_name` to add one.");
             return Ok(vec![]);
         }
-        println!("checking {} users...", conf.watched_users.len());
-        let github_client = GithubClient::new(conf)?;
+        print_progress(0, n)?;
+
         // we use the same date, so that it will look better in extracts
         let now = Utc::now();
-        let changes = conf.watched_users.iter()
-            .map(UserId::new)
-            .par_bridge()
-            .map(|user_id| self.update_user(&user_id, &github_client, now))
-            .filter_map(|r| match r {
-                Ok(changes) => Some(changes),
-                Err(e) => {
-                    eprintln!("error while updating user: {:?}", e);
-                    None
-                }
-            })
-            .reduce(
-                Vec::new,
-                |mut a, mut b| {
-                    a.append(&mut b);
-                    a
-                }
-            );
+
+        // a channel for the user_ids to process
+        let (s_users, r_users) = channel::bounded(n);
+        for user in &conf.watched_users {
+            s_users.send(UserId::new(user)).unwrap();
+        }
+
+        // a channel to receive vecs of changes
+        let (s_changes, r_changes) = channel::bounded(n);
+
+        // a channel to receive progress
+        let (s_progress, r_progress) = channel::bounded(n);
+
+        // a thread to process the resuts and display progress
+        std::thread::spawn(move || {
+            let mut done = 0;
+            while r_progress.recv().is_ok() {
+                done += 1;
+                print_progress(done, n).unwrap();
+                if done == n { break; }
+            }
+        });
+
+        // threads doing the heavy work
+        thread::scope(|scope| {
+            for _ in 0..thread_count {
+                let r_users = r_users.clone();
+                let s_changes = s_changes.clone();
+                let s_progress = s_progress.clone();
+                let github_client = match GithubClient::new(conf) {
+                    Ok(c) => c,
+                    Err(e) => {
+                        eprintln!("error while creating GitHub client: {:?}", e);
+                        return;
+                    }
+                };
+                scope.spawn(move |_| {
+                    while let Ok(user_id) = r_users.try_recv() {
+                        let changes = self
+                            .update_user(&user_id, &github_client, now)
+                            .unwrap_or_else(|e| {
+                                eprintln!("error while updating user: {:?}", e);
+                                Vec::new()
+                            });
+                        s_changes.send(changes).unwrap();
+                        s_progress.send(()).unwrap();
+                    }
+                });
+            }
+        }).unwrap();
+
+        let mut changes = Vec::new();
+        for mut user_changes in r_changes.try_iter() {
+            changes.append(& mut user_changes);
+        }
+        eprintln!("                                              ");
+        println!("{} users queried from GitHub                   ", n);
         Ok(changes)
     }
+}
+
+fn print_progress(done: usize, total: usize) -> Result<()> {
+    let width = 20;
+    let p = ProgressBar::new(done as f32 / (total as f32), width);
+    let s = format!("{:width$}", p, width=width);
+    let mut stderr = io::stderr();
+    queue!(stderr, cursor::SavePosition)?;
+    queue!(stderr, Clear(ClearType::CurrentLine))?;
+    queue!(stderr, Print(format!("{:>4} / {} users ", done, total)))?;
+    queue!(stderr, PrintStyledContent(style(s).with(Color::Yellow).on(Color::DarkMagenta)))?;
+    queue!(stderr, cursor::RestorePosition)?;
+    stderr.flush()?;
+    Ok(())
 }

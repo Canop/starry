@@ -1,11 +1,14 @@
 mod args;
 
-pub use args::*;
+pub use {
+    args::*,
+};
 
 use {
     crate::*,
     anyhow::*,
     std::io,
+    termimad::crossterm::tty::IsTty,
 };
 
 pub fn run() -> Result<()> {
@@ -68,19 +71,15 @@ pub fn run() -> Result<()> {
             list.write_csv(&mut io::stdout())?;
         }
         Some(ArgsCommand::Gaze { .. }) | None => {
+            let color = args.color.value().unwrap_or_else(|| std::io::stdout().is_tty());
+            let skin = make_skin(color);
             let mut db = Db::new()?;
             db.verbose = args.verbose;
             db.read_only = args.no_save;
-            let mut changes = db.update(&conf)?;
-            if changes.is_empty() {
-                println!("no change");
-            } else {
-                println!("{} changes", changes.len());
-                changes.sort_by(|a, b| b.value().partial_cmp(&a.value()).unwrap());
-                for change in changes.iter().take(20) {
-                    println!("{}", change);
-                }
-            }
+            let mut changes = db.update(&conf, args.threads)?;
+            changes.sort_by(|a, b| b.interest().partial_cmp(&a.interest()).unwrap());
+            let report = ChangeReport::new(&changes, args.max_rows);
+            report.print(&skin);
         }
     }
     Ok(())
