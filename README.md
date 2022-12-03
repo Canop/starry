@@ -50,9 +50,11 @@ Fetching the stars is done with
 
 	starry
 
-Starry will tell you about new repositories and rising or dropping stars:
+Starry will tell you about new repositories and rising or fading stars:
 
 ![changes](doc/changes.png)
+
+If you just want to know from time to time what your friends are up to, you don't need more.
 
 If you want regular data, you should probably add a cron rule.
 
