@@ -3,7 +3,6 @@ use argh::FromArgs;
 #[derive(Debug, FromArgs)]
 /// The history of current stars tells only half the starry.
 ///
-///
 /// Source at https://github.com/Canop/starry
 pub struct Args {
     /// print the version
@@ -21,8 +20,8 @@ pub struct Args {
     #[argh(switch)]
     pub no_save: bool,
 
-    /// number max of rows in a report (default: 20)
-    #[argh(option, default = "25")]
+    /// number max of rows in a report (default: 30)
+    #[argh(option, default = "30")]
     pub max_rows: usize,
 
     /// number of threads to use (default 15)

@@ -168,7 +168,7 @@ impl Db {
         // a channel to receive progress
         let (s_progress, r_progress) = channel::bounded(n);
 
-        // a thread to process the resuts and display progress
+        // a thread to display progress
         std::thread::spawn(move || {
             let mut done = 0;
             while r_progress.recv().is_ok() {

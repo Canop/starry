@@ -37,7 +37,7 @@ impl GithubClient {
             user_id.graphql_selector(),
             Count::query("repositories", "isFork: false"),
         );
-        let gquser: GQUser = self.gql_client.get_first_item(&query)?;
+        let gquser: GQUser = self.gql_client.get_first_item(query)?;
         Ok(User {
             user_id,
             name: gquser.name,
