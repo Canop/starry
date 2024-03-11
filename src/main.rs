@@ -1,8 +1,9 @@
 use cli_log::*;
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     init_cli_log!();
-    starry::run()?;
+    starry::run().await?;
     info!("bye");
     Ok(())
 }

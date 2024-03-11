@@ -1,8 +1,15 @@
 use {
     crate::*,
     anyhow::*,
-    chrono::{DateTime, SecondsFormat, Utc},
-    serde::{Deserialize, Serialize},
+    chrono::{
+        DateTime,
+        SecondsFormat,
+        Utc,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     std::{
         collections::HashMap,
         ffi::OsStr,
@@ -35,7 +42,11 @@ pub struct DatedObs {
 }
 
 impl UserObs {
-    pub fn write_in_dir(&self, user_dir: &Path, verbose: bool) -> Result<()> {
+    pub fn write_in_dir(
+        &self,
+        user_dir: &Path,
+        verbose: bool,
+    ) -> Result<()> {
         fs::create_dir_all(user_dir)?;
         // the chosen format, precise to the seconds only, avoids having
         // a dot in the name (which would break the naming with the ext)
@@ -65,7 +76,11 @@ impl UserObs {
             })
             .map(DateTime::from)
     }
-    pub fn read_file(file_path: &Path, user_id: UserId, time: DateTime<Utc>) -> Result<Self> {
+    pub fn read_file(
+        file_path: &Path,
+        user_id: UserId,
+        time: DateTime<Utc>,
+    ) -> Result<Self> {
         let mut r = csv::Reader::from_path(file_path)?;
         let mut counts = Vec::new();
         for obs in r.deserialize() {
@@ -77,7 +92,10 @@ impl UserObs {
             counts,
         })
     }
-    pub fn read_line(file_path: &Path, repo_name: &str) -> Result<Option<RepoObs>> {
+    pub fn read_line(
+        file_path: &Path,
+        repo_name: &str,
+    ) -> Result<Option<RepoObs>> {
         let mut r = csv::Reader::from_path(file_path)?;
         for repo_obs in r.deserialize() {
             let repo_obs: RepoObs = repo_obs?;
@@ -113,7 +131,10 @@ impl UserObs {
             stars: self.counts.iter().map(|rc| rc.stars).sum(),
         }
     }
-    pub fn repo_count(&self, repo_name: &str) -> Option<usize> {
+    pub fn repo_count(
+        &self,
+        repo_name: &str,
+    ) -> Option<usize> {
         for repo_obs in &self.counts {
             if repo_obs.repo_name == repo_name {
                 return Some(repo_obs.stars);
@@ -121,7 +142,10 @@ impl UserObs {
         }
         None
     }
-    pub fn diff_from(&self, old_uo: &Self) -> Vec<RepoChange> {
+    pub fn diff_from(
+        &self,
+        old_uo: &Self,
+    ) -> Vec<RepoChange> {
         let mut changes = Vec::new();
         for repo_obs in &self.counts {
             let old_stars = old_uo.repo_count(&repo_obs.repo_name);

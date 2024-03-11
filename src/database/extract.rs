@@ -1,9 +1,16 @@
 use {
     crate::*,
     anyhow::*,
+    chrono::{
+        DateTime,
+        SecondsFormat,
+        Utc,
+    },
     cli_log::*,
-    chrono::{DateTime, SecondsFormat, Utc},
-    std::{collections::HashMap, io::Write},
+    std::{
+        collections::HashMap,
+        io::Write,
+    },
 };
 
 #[derive(Debug)]
@@ -27,14 +34,21 @@ pub(crate) struct Col {
 }
 
 impl Extract {
-    pub fn write_csv<W: Write>(&self, w: &mut W) -> Result<()> {
+    pub fn write_csv<W: Write>(
+        &self,
+        w: &mut W,
+    ) -> Result<()> {
         write!(w, "time")?;
         for name in &self.names {
             write!(w, ",{}", name)?;
         }
         writeln!(w)?;
         for line in &self.lines {
-            write!(w, "{}", line.time.to_rfc3339_opts(SecondsFormat::Secs, true))?;
+            write!(
+                w,
+                "{}",
+                line.time.to_rfc3339_opts(SecondsFormat::Secs, true)
+            )?;
             for count in &line.counts {
                 if let Some(count) = count {
                     write!(w, ",{}", count)?;
@@ -47,7 +61,10 @@ impl Extract {
         w.flush()?;
         Ok(())
     }
-    pub fn read(db: &Db, names: Vec<String>) -> Result<Self> {
+    pub fn read(
+        db: &Db,
+        names: Vec<String>,
+    ) -> Result<Self> {
         // we first compile the user request in several queries (one per user)
         let mut queries: Vec<UserQuery> = Vec::new();
         for (idx, name) in names.iter().enumerate() {

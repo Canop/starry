@@ -24,10 +24,6 @@ pub struct Args {
     #[argh(option, default = "30")]
     pub max_rows: usize,
 
-    /// number of threads to use (default 15)
-    #[argh(option, default = "15")]
-    pub threads: usize,
-
     #[argh(option, default = "Default::default()")]
     /// color and style: 'yes', 'no' or 'auto' (auto should be good in most cases)
     pub color: BoolArg,

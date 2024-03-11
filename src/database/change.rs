@@ -11,7 +11,10 @@ pub struct RepoChange {
 }
 
 impl fmt::Display for RepoChange {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
         //write!(f, "[{}] ", self.value())?;
         write!(f, "{}", self.repo_id)?;
         if let Some(old_stars) = self.old_stars {

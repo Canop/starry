@@ -1,18 +1,16 @@
 mod args;
 
-pub use {
-    args::*,
-};
+pub use args::*;
 
 use {
-    cli_log::*,
     crate::*,
     anyhow::*,
+    cli_log::*,
     std::io,
     termimad::crossterm::tty::IsTty,
 };
 
-pub fn run() -> Result<()> {
+pub async fn run() -> Result<()> {
     let args: Args = argh::from_env();
     debug!("args: {:#?}", &args);
     if args.version {
@@ -36,10 +34,10 @@ pub fn run() -> Result<()> {
             }
         },
         Some(ArgsCommand::Check(CheckCommand { name })) => {
-            UserId::new(name).check_on_github(&conf)?;
+            UserId::new(name).check_on_github(&conf).await?;
         }
         Some(ArgsCommand::Follow(FollowCommand { name })) => {
-            if UserId::new(name.clone()).check_on_github(&conf)? {
+            if UserId::new(name.clone()).check_on_github(&conf).await? {
                 conf.follow(name);
                 if !args.no_save {
                     conf.save()?;
@@ -72,12 +70,15 @@ pub fn run() -> Result<()> {
             list.write_csv(&mut io::stdout())?;
         }
         Some(ArgsCommand::Gaze { .. }) | None => {
-            let color = args.color.value().unwrap_or_else(|| std::io::stdout().is_tty());
+            let color = args
+                .color
+                .value()
+                .unwrap_or_else(|| std::io::stdout().is_tty());
             let skin = make_skin(color);
             let mut db = Db::new()?;
             db.verbose = args.verbose;
             db.read_only = args.no_save;
-            let mut changes = db.update(&conf, args.threads)?;
+            let mut changes = db.update(&conf).await?;
             changes.sort_by(|a, b| b.interest().partial_cmp(&a.interest()).unwrap());
             let report = ChangeReport::new(&changes, args.max_rows);
             report.print(&skin);

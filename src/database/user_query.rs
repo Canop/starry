@@ -1,6 +1,9 @@
 use {
     crate::*,
-    chrono::{DateTime, Utc},
+    chrono::{
+        DateTime,
+        Utc,
+    },
 };
 
 /// a query for the time series for some

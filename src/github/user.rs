@@ -1,6 +1,4 @@
-use {
-    crate::*,
-};
+use crate::*;
 
 #[derive(Debug)]
 pub struct User {
@@ -8,4 +6,3 @@ pub struct User {
     pub name: String,
     pub non_fork_repositories_count: usize,
 }
-

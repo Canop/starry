@@ -21,7 +21,10 @@ impl UserId {
 }
 
 impl fmt::Display for UserId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
         write!(f, "{}", self.login)
     }
 }
@@ -29,14 +32,16 @@ impl fmt::Display for UserId {
 impl UserId {
     /// check a user exists on github. Print some basic information
     /// if it's the case, print an error in other cases
-    pub fn check_on_github(self, conf: &Conf) -> Result<bool> {
+    pub async fn check_on_github(
+        self,
+        conf: &Conf,
+    ) -> Result<bool> {
         let github_client = GithubClient::new(conf)?;
-        match github_client.get_user(self) {
+        match github_client.get_user(self).await {
             Ok(user) => {
                 println!(
                     "User {} has {} non forked repositories on GitHub",
-                    user.name,
-                    user.non_fork_repositories_count,
+                    user.name, user.non_fork_repositories_count,
                 );
                 Ok(true)
             }

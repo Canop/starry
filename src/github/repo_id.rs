@@ -10,7 +10,10 @@ pub struct RepoId {
 }
 
 impl RepoId {
-    pub fn new<S: Into<String>>(owner: UserId, name: S) -> Self {
+    pub fn new<S: Into<String>>(
+        owner: UserId,
+        name: S,
+    ) -> Self {
         Self {
             owner,
             name: name.into(),
@@ -25,7 +28,10 @@ impl RepoId {
 }
 
 impl fmt::Display for RepoId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
         write!(f, "{}/{}", self.owner, self.name)
     }
 }

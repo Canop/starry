@@ -1,9 +1,15 @@
 use {
     crate::*,
     anyhow::*,
-    serde::{Deserialize, Serialize},
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     std::{
-        collections::{HashMap, HashSet},
+        collections::{
+            HashMap,
+            HashSet,
+        },
         fs,
         io::Write,
         path::PathBuf,
@@ -41,16 +47,29 @@ impl Conf {
         println!("Configuration saved in {:?}.", &path);
         Ok(())
     }
-    pub fn set(&mut self, name: String, value: String) {
+    pub fn set(
+        &mut self,
+        name: String,
+        value: String,
+    ) {
         self.props.insert(name, value);
     }
-    pub fn get(&self, name: &str) -> Option<&str> {
+    pub fn get(
+        &self,
+        name: &str,
+    ) -> Option<&str> {
         self.props.get(name).map(|s| s.as_str())
     }
-    pub fn follow(&mut self, name: String) {
+    pub fn follow(
+        &mut self,
+        name: String,
+    ) {
         self.watched_users.insert(name);
     }
-    pub fn unfollow(&mut self, name: &str) {
+    pub fn unfollow(
+        &mut self,
+        name: &str,
+    ) {
         self.watched_users.remove(name);
     }
 }

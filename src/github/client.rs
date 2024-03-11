@@ -1,8 +1,15 @@
 use {
     crate::*,
     anyhow::*,
-    byo_graphql::{Count, GraphqlClient, List},
-    chrono::{DateTime, Utc},
+    byo_graphql::{
+        Count,
+        GraphqlClient,
+        List,
+    },
+    chrono::{
+        DateTime,
+        Utc,
+    },
     serde::Deserialize,
 };
 
@@ -25,7 +32,10 @@ impl GithubClient {
         Ok(Self { gql_client })
     }
     /// get a GitHub user's information by its login
-    pub fn get_user(&self, user_id: UserId) -> Result<User> {
+    pub async fn get_user(
+        &self,
+        user_id: UserId,
+    ) -> Result<User> {
         // we extract into a dedicated structure matching the graphql response
         #[derive(Deserialize)]
         pub struct GQUser {
@@ -37,7 +47,7 @@ impl GithubClient {
             user_id.graphql_selector(),
             Count::query("repositories", "isFork: false"),
         );
-        let gquser: GQUser = self.gql_client.get_first_item(query)?;
+        let gquser: GQUser = self.gql_client.get_first_item(query).await?;
         Ok(User {
             user_id,
             name: gquser.name,
@@ -46,7 +56,11 @@ impl GithubClient {
     }
     /// query the GitHub API to get a UserObs which has the number of stars
     /// of all this user's repositories
-    pub fn get_user_star_counts(&self, user_id: UserId, now: DateTime<Utc>) -> Result<UserObs> {
+    pub async fn get_user_star_counts(
+        &self,
+        user_id: UserId,
+        now: DateTime<Utc>,
+    ) -> Result<UserObs> {
         #[derive(Deserialize)]
         pub struct User {
             pub repositories: Repositories,
@@ -76,7 +90,7 @@ impl GithubClient {
             );
             // println!("query: {}", &query);
             // println!("raw answer: {}", self.gql_client.text(&query)?);
-            let mut user: User = self.gql_client.get_first_item(&query)?;
+            let mut user: User = self.gql_client.get_first_item(&query).await?;
             for repo in user.repositories.nodes.drain(..) {
                 counts.push(RepoObs {
                     repo_name: repo.name,

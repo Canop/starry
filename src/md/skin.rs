@@ -1,5 +1,8 @@
 use {
-    crossterm::style::{Attribute::*, Color::*},
+    crossterm::style::{
+        Attribute::*,
+        Color::*,
+    },
     minimad::Compound,
     termimad::*,
 };
@@ -33,13 +36,9 @@ fn make_color_skin() -> MadSkin {
 
 fn make_no_color_skin() -> MadSkin {
     let mut skin = MadSkin::no_style();
-    skin.special_chars.insert(
-        Compound::raw_str("U").code(),
-        StyledChar::nude('➚'),
-    );
-    skin.special_chars.insert(
-        Compound::raw_str("D").code(),
-        StyledChar::nude('➘'),
-    );
+    skin.special_chars
+        .insert(Compound::raw_str("U").code(), StyledChar::nude('➚'));
+    skin.special_chars
+        .insert(Compound::raw_str("D").code(), StyledChar::nude('➘'));
     skin
 }

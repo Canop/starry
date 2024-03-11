@@ -22,7 +22,11 @@ pub struct List {
 impl List {
     /// find the users with at least 2 user observations, return them
     /// with the last total count of stars
-    pub fn users(db: &Db, conf: &Conf, drawable: bool) -> Result<Self> {
+    pub fn users(
+        db: &Db,
+        conf: &Conf,
+        drawable: bool,
+    ) -> Result<Self> {
         let mut lines = Vec::new();
         for name in &conf.watched_users {
             let user_id = UserId::new(name);
@@ -39,7 +43,10 @@ impl List {
         }
         Ok(Self { lines })
     }
-    pub fn write_csv<W: Write>(&self, w: &mut W) -> Result<()> {
+    pub fn write_csv<W: Write>(
+        &self,
+        w: &mut W,
+    ) -> Result<()> {
         writeln!(w, "name,stars")?;
         for line in &self.lines {
             writeln!(w, "{},{}", line.name, line.stars)?;
@@ -51,10 +58,14 @@ impl List {
 
 impl From<UserObs> for List {
     fn from(mut uo: UserObs) -> Self {
-        let lines = uo.counts
+        let lines = uo
+            .counts
             .drain(..)
             .filter(|c| c.stars > 0)
-            .map(|c| ListLine { name: c.repo_name, stars: c.stars })
+            .map(|c| ListLine {
+                name: c.repo_name,
+                stars: c.stars,
+            })
             .collect();
         Self { lines }
     }

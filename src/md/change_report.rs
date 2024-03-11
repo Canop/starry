@@ -1,9 +1,11 @@
 use {
     crate::*,
-    minimad::{TextTemplate, OwningTemplateExpander},
+    minimad::{
+        OwningTemplateExpander,
+        TextTemplate,
+    },
     termimad::*,
 };
-
 
 static TEMPLATE: &str = r#"
 ${change-count} changes
@@ -20,18 +22,21 @@ ${changes
 "#;
 
 pub struct ChangeReport<'c> {
-    changes: &'c[RepoChange],
+    changes: &'c [RepoChange],
     max_rows: usize,
 }
 
 impl<'c> ChangeReport<'c> {
     pub fn new(
-        changes: &'c[RepoChange],
+        changes: &'c [RepoChange],
         max_rows: usize,
     ) -> Self {
         Self { changes, max_rows }
     }
-    pub fn print(&self, skin: &MadSkin) {
+    pub fn print(
+        &self,
+        skin: &MadSkin,
+    ) {
         if self.changes.is_empty() {
             println!("no change");
             return;
@@ -41,10 +46,14 @@ impl<'c> ChangeReport<'c> {
             .set_default("")
             .set("change-count", self.changes.len());
         for change in self.changes.iter().take(self.max_rows) {
-            expander.sub("changes")
+            expander
+                .sub("changes")
                 .set("owner", &change.repo_id.owner)
                 .set("name", &change.repo_id.name)
-                .set("last", change.old_stars.map_or("".to_string(), |s| s.to_string()))
+                .set(
+                    "last",
+                    change.old_stars.map_or("".to_string(), |s| s.to_string()),
+                )
                 //.set_md("trend", format!("{} {}", change.value(), change.trend_markdown()))
                 .set_md("trend", change.trend_markdown())
                 .set("now", change.new_stars)
